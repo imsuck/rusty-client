@@ -3,6 +3,7 @@
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
+    "withGlobalTauri": true,
     "devPath": "../dist",
     "distDir": "../dist"
   },
@@ -29,7 +30,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "imsuck.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -55,7 +56,7 @@
     },
     "windows": [
       {
-        "fullscreen": false,
+        "fullscreen": true,
         "height": 600,
         "resizable": true,
         "title": "Rusty Client",
