@@ -3,31 +3,43 @@
     windows_subsystem = "windows"
 )]
 
-mod commands;
-mod menu;
+use tauri::{GlobalShortcutManager, Manager, RunEvent, WindowEvent};
 
+mod shortcuts;
+
+#[allow(clippy::collapsible_match)]
 fn main() {
-    tauri::Builder::default()
-        .menu(menu::menu())
+    let app = tauri::Builder::default()
         .setup(|app| {
-            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-        })
-        .on_menu_event(|event| {
-            let window = event.window();
+            let window = app.get_window("main").unwrap();
 
-            match event.menu_item_id() {
-                "new game" | "new game 2" => {
-                    println!("New game started.");
-                    window
-                        .eval("window.location.href = \"http://krunker.io/\"")
+            window
+                .eval("window.location.href = 'https://krunker.io/'")
+                .unwrap();
+
+            Ok(())
+        })
+        .on_window_event(|event| {
+            if let WindowEvent::Focused(focused) = event.event() {
+                if *focused {
+                    shortcuts::register(event.window().app_handle());
+                } else {
+                    event
+                        .window()
+                        .app_handle()
+                        .global_shortcut_manager()
+                        .unregister_all()
                         .unwrap();
-                },
-                "toggle fullscreen" => {
-                    window.eval("window.__TAURI__.tauri.invoke(\"toggle_fullscreen\"")
                 }
-                _ => println!("Got event id {}.", event.menu_item_id()),
             }
         })
-        .run(tauri::generate_context!())
+        .build(tauri::generate_context!())
         .expect("Error while running tauri application.");
+
+    app.run(|app_handle, event| {
+        if let RunEvent::Ready = event {
+            shortcuts::register(app_handle.clone());
+            app_handle.get_window("main").unwrap().set_focus().unwrap();
+        }
+    })
 }
