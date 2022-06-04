@@ -56,6 +56,7 @@
 		},
 		"windows": [
 			{
+				"visible": false,
 				"fullscreen": true,
 				"height": 1080,
 				"resizable": true,
