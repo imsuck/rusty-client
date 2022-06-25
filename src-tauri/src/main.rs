@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{GlobalShortcutManager, Manager, RunEvent, WindowEvent};
+use tauri::{Manager, RunEvent, WindowEvent};
 
 mod shortcuts;
 
@@ -12,6 +12,7 @@ fn main() {
     let app = tauri::Builder::default()
         .on_window_event(|event| {
             if let WindowEvent::Focused(focused) = event.event() {
+                // Handle local shortcuts
                 if *focused {
                     shortcuts::register(event.window().app_handle());
                 } else {
@@ -23,9 +24,14 @@ fn main() {
         .expect("Error while building tauri application");
 
     app.run(|app_handle, event| {
+        // If the app is ready load the game's url and show the window
         if let RunEvent::Ready = event {
             shortcuts::register(app_handle.clone());
             let window = app_handle.get_window("main").unwrap();
+            
+            window
+                .eval("window.location.href = 'https://krunker.io/'")
+                .unwrap();
             window.set_focus().unwrap();
             window.show().unwrap();
         }
